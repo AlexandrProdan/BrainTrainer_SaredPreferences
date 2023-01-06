@@ -30,7 +30,9 @@ public class MainVM extends AndroidViewModel {
         return riddle;
     }
 
-
+    public void nextRiddle(){
+        riddle.setValue(new Riddle());
+    }
 
 
 

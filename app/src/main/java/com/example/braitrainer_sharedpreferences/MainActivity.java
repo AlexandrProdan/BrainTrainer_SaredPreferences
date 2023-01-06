@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         initViews();
         mainVM = new ViewModelProvider(this).get(MainVM.class);
 
@@ -36,7 +39,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        setOnClickListeners();
     }
+    //=============================================================================================
     private void initViews(){
         Log.d(TAG, "initViews: ");
         textViewScore = findViewById(R.id.textViewScore);
@@ -70,22 +75,60 @@ public class MainActivity extends AppCompatActivity {
         textViewAnswer4.setText(riddle.getRandomOrdAnsArrList().get(3).toString());
     }
 
+    private boolean isAnswerCorrect(TextView textViewUserGuess){
+        int correctAnswer = mainVM.getRiddle().getValue().getCorrectAnswer();
+        int userGuess = Integer.parseInt(textViewUserGuess.getText().toString());
 
-
-
-    private void resetContToZero(){count = 0;}
-
-//    private boolean checkAnswer(int userAnswer){
-//        if(userAnswer == riddle.getCorrectAnswer()){
-//            return true;
-//        }else {
-//            return false;
-//        }
-//    }
-
-
+        if(correctAnswer == userGuess){
+                return true;
+        }else {
+            return false;
+        }
+    }
 
     private void setOnClickListeners(){
+        textViewAnswer1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isCorrect =  isAnswerCorrect(textViewAnswer1);
+                if(isCorrect){
+                    mainVM.nextRiddle();
+                }
+            }
+        });
+
+        textViewAnswer2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isCorrect =  isAnswerCorrect(textViewAnswer2);
+                if(isCorrect){
+                    mainVM.nextRiddle();
+                }
+            }
+        });
+
+        textViewAnswer3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isCorrect =  isAnswerCorrect(textViewAnswer3);
+                if(isCorrect){
+                    mainVM.nextRiddle();
+                }
+            }
+        });
+
+        textViewAnswer4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean isCorrect =  isAnswerCorrect(textViewAnswer4);
+                if(isCorrect){
+                    mainVM.nextRiddle();
+                }
+            }
+        });
+
 
     }
+
+    private void resetContToZero(){count = 0;}
 }
