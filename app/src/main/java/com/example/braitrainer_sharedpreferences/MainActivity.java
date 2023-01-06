@@ -4,7 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -12,6 +17,7 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
+    public static final int ALLOCATED_TIME = 20;
     private TextView textViewScore;
     private TextView textViewTime;
     private TextView textViewRiddle;
@@ -20,9 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private TextView textViewAnswer3;
     private TextView textViewAnswer4;
 
+    CountDownTimer timer;
+
     private MainVM mainVM;
 
-    private static int count = 0;
+
+    private static int score = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initViews();
+
+
         mainVM = new ViewModelProvider(this).get(MainVM.class);
 
         mainVM.getRiddle().observe(this, new Observer<Riddle>() {
@@ -40,24 +51,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setOnClickListeners();
+        countTime(ALLOCATED_TIME);
+
+
     }
     //=============================================================================================
     private void initViews(){
         Log.d(TAG, "initViews: ");
         textViewScore = findViewById(R.id.textViewScore);
-        textViewTime = findViewById(R.id.textViewTime);
         textViewRiddle = findViewById(R.id.textViewRiddle);
         textViewAnswer1 = findViewById(R.id.textViewAnswer1);
         textViewAnswer2 = findViewById(R.id.textViewAnswer2);
         textViewAnswer3 = findViewById(R.id.textViewAnswer3);
         textViewAnswer4 = findViewById(R.id.textViewAnswer4);
-    }
 
-    private  void resetValuesOnscreen(){
-        resetContToZero();
-        //reset time to 0
-        //riddle = new Riddle();
-        //displayRiddleOnScreen();
+        textViewTime = findViewById(R.id.textViewTime);
     }
 
     private void displayRiddleOnScreen(Riddle riddle){
@@ -75,14 +83,21 @@ public class MainActivity extends AppCompatActivity {
         textViewAnswer4.setText(riddle.getRandomOrdAnsArrList().get(3).toString());
     }
 
-    private boolean isAnswerCorrect(TextView textViewUserGuess){
+    private void isAnswerCorrect(TextView textViewUserGuess){
         int correctAnswer = mainVM.getRiddle().getValue().getCorrectAnswer();
         int userGuess = Integer.parseInt(textViewUserGuess.getText().toString());
 
         if(correctAnswer == userGuess){
-                return true;
+            score++;
+            textViewScore.setText(""+score);
+            timer.cancel();
+            this.countTime(ALLOCATED_TIME);
+            mainVM.nextRiddle();
         }else {
-            return false;
+            timer.cancel();
+            Intent intent = RetryActivity.newIntent(MainActivity.this, score);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -90,45 +105,54 @@ public class MainActivity extends AppCompatActivity {
         textViewAnswer1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isCorrect =  isAnswerCorrect(textViewAnswer1);
-                if(isCorrect){
-                    mainVM.nextRiddle();
-                }
+                isAnswerCorrect(textViewAnswer1);
             }
         });
 
         textViewAnswer2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isCorrect =  isAnswerCorrect(textViewAnswer2);
-                if(isCorrect){
-                    mainVM.nextRiddle();
-                }
+                isAnswerCorrect(textViewAnswer2);
             }
         });
 
         textViewAnswer3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isCorrect =  isAnswerCorrect(textViewAnswer3);
-                if(isCorrect){
-                    mainVM.nextRiddle();
-                }
+                isAnswerCorrect(textViewAnswer3);
             }
         });
 
         textViewAnswer4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isCorrect =  isAnswerCorrect(textViewAnswer4);
-                if(isCorrect){
-                    mainVM.nextRiddle();
-                }
+                isAnswerCorrect(textViewAnswer4);
             }
         });
 
 
     }
 
-    private void resetContToZero(){count = 0;}
+    void countTime(int seconds){
+        timer = new CountDownTimer((seconds*1000), 1000) {
+            @Override
+            public void onTick(long millisUntilFinishes) {
+                int secondsLeft = (int) (millisUntilFinishes/1000);
+                secondsLeft++;
+                textViewTime.setText(""+secondsLeft);
+            }
+
+            @Override
+            public void onFinish() {
+                textViewTime.setText("0");
+                Intent intent = RetryActivity.newIntent(MainActivity.this, score);
+                timer.cancel();
+                startActivity(intent);
+                finish();
+            }
+        };
+        timer.start();
+    }
+
+
 }
