@@ -31,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
     private MainVM mainVM;
 
 
-    private static int score = 0;
+    private static int score;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        score = 0;
         initViews();
 
 

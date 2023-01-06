@@ -19,7 +19,7 @@ public class RetryActivity extends AppCompatActivity {
 
     SharedPreferences highScore;
 
-    int score;
+    int score = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,9 +35,10 @@ public class RetryActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(RetryActivity.this, MainActivity.class);
                 startActivity(intent);
-
+                finish();
             }
         });
+        isHighScore();
     }
     void initViews(){
         textViewHighScore = findViewById(R.id.textViewHighScore);
@@ -47,9 +48,9 @@ public class RetryActivity extends AppCompatActivity {
 
     void isHighScore(){
         if(score > highScore.getInt("highScore",0)){
-            highScore.edit().putInt("highScore", score);
-            textViewHighScore.setText(""+score);
+            highScore.edit().putInt("highScore", score).apply();
             textViewScore.setText(""+score);
+            textViewHighScore.setText(""+score);
         }else {
             String high = ""+ (highScore.getInt("highScore",0));
             textViewHighScore.setText(high);
